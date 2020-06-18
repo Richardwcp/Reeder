@@ -1,7 +1,7 @@
-name: Pull Request
+name: Deploy
 
 on:
-  pull_request:
+  push:
     branches: [master]
 
 jobs:
@@ -13,5 +13,6 @@ jobs:
         with:
           vercel-token: ${{ secrets.VERCEL_TOKEN }}
           github-token: ${{ secrets.GITHUB_TOKEN }}
+          vercel-args: '--prod'
           vercel-org-id: ${{ secrets.ORG_ID }}
           vercel-project-id: ${{ secrets.PROJECT_ID }}
