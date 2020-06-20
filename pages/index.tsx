@@ -1,5 +1,7 @@
 import { GetServerSideProps } from 'next'
 import jsdom from 'jsdom'
+import Header from './components/Header/header'
+import styles from './index.module.scss'
 
 type Item = {
   title: string
@@ -15,16 +17,23 @@ type HomeProps = {
 export default function Home({ items }: HomeProps) {
   return (
     <>
+      <Header />
       {items.map(({ title, description, link, date }) => {
         return (
-          <article>
-            <h2>
-              <a href={link} target='_blank' rel='noopener'>
-                {title}
-              </a>
-              {description}
-            </h2>
-          </article>
+          <section className={styles.article}>
+            <article className={styles.card}>
+              <div className={styles.imageContainer}></div>
+              <div className={styles.content}>
+                <p className={styles.headline}>
+                  <a href={link}>{title}</a>
+                </p>
+                <p className={styles.description}>{description}</p>
+              </div>
+              <div className={styles.cardBottom}>
+                <p className={styles.author}>Jane Doe</p>
+              </div>
+            </article>
+          </section>
         )
       })}
     </>
