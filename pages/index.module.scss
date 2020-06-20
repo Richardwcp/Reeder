@@ -8,7 +8,7 @@ $black: #000;
 @mixin cf {
   &::before,
   &::after {
-    content: '';
+    content: "";
     display: table;
   }
   &::after {
