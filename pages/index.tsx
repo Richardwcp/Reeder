@@ -1,18 +1,18 @@
-import { GetServerSideProps } from "next";
-import jsdom from "jsdom";
-import Header from "./components/Header/header";
-import styles from "./index.module.scss";
+import { GetServerSideProps } from 'next'
+import jsdom from 'jsdom'
+import Header from './components/Header/header'
+import styles from './index.module.scss'
 
 type Item = {
-  title: string;
-  description: string;
-  link: string;
-  date: string;
-};
+  title: string
+  description: string
+  link: string
+  date: string
+}
 
 type HomeProps = {
-  items: Item[];
-};
+  items: Item[]
+}
 
 export default function Home({ items }: HomeProps) {
   return (
@@ -34,44 +34,17 @@ export default function Home({ items }: HomeProps) {
               </div>
             </article>
           </section>
-        );
+        )
       })}
     </>
-  );
+  )
 }
 
-export const getServerSideProps: GetServerSideProps = async (context) => {
-  const RSS_URL: string = "http://feeds.skynews.com/feeds/rss/technology.xml";
-  const { JSDOM } = jsdom;
-  const { window } = new JSDOM(``);
-
-  const res = await fetch(RSS_URL);
-  const str = await res.text();
-
-  const doc: Document = new window.DOMParser().parseFromString(str, "text/xml");
-
-  const nodeList = doc.querySelectorAll("item");
-
-  let items = [];
-  nodeList.forEach((el) => {
-    const title = el.querySelector("title").innerHTML;
-    const description = el.querySelector("description").innerHTML;
-    const link = el.querySelector("link").innerHTML;
-    const date = el.querySelector("pubDate").innerHTML;
-
-    const item = {
-      title,
-      description,
-      link,
-      date,
-    };
-
-    items.push(item);
-  });
+export async function getStaticProps(context) {
+  const res = await fetch('http://localhost:3000/api/getRSS') //add localhost to env variable
+  const items = await res.json()
 
   return {
-    props: {
-      items,
-    },
-  };
-};
+    props: items,
+  }
+}
