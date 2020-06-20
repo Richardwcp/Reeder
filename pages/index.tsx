@@ -1,7 +1,7 @@
-import { GetServerSideProps } from 'next'
-import jsdom from 'jsdom'
-import Header from './components/Header/header'
-import styles from './index.module.scss'
+import { GetServerSideProps } from "next";
+import jsdom from "jsdom";
+import Header from "./components/Header/header";
+import styles from "./index.module.scss";
 
 type Item = {
   title: string;
@@ -29,18 +29,21 @@ export default function Home({ items }: HomeProps) {
                 </p>
                 <p className={styles.description}>{description}</p>
               </div>
-            </div>
-          </article>
-        )
+              <div className={styles.cardBottom}>
+                <p className={styles.author}>Jane Doe</p>
+              </div>
+            </article>
+          </section>
+        );
       })}
     </>
   );
 }
 
 export const getServerSideProps: GetServerSideProps = async (context) => {
-  const RSS_URL: string = 'http://feeds.skynews.com/feeds/rss/technology.xml'
-  const { JSDOM } = jsdom
-  const { window } = new JSDOM(``)
+  const RSS_URL: string = "http://feeds.skynews.com/feeds/rss/technology.xml";
+  const { JSDOM } = jsdom;
+  const { window } = new JSDOM(``);
 
   const res = await fetch(RSS_URL);
   const str = await res.text();
@@ -49,12 +52,12 @@ export const getServerSideProps: GetServerSideProps = async (context) => {
 
   const nodeList = doc.querySelectorAll("item");
 
-  let items = []
+  let items = [];
   nodeList.forEach((el) => {
-    const title = el.querySelector('title').innerHTML
-    const description = el.querySelector('description').innerHTML
-    const link = el.querySelector('link').innerHTML
-    const date = el.querySelector('pubDate').innerHTML
+    const title = el.querySelector("title").innerHTML;
+    const description = el.querySelector("description").innerHTML;
+    const link = el.querySelector("link").innerHTML;
+    const date = el.querySelector("pubDate").innerHTML;
 
     const item = {
       title,
