@@ -1,9 +1,9 @@
-import { GetServerSideProps } from 'next'
-import jsdom from 'jsdom'
+import { GetStaticProps } from 'next'
 import Header from './components/Header/header'
 import styles from './index.module.scss'
+import { client, q } from './utils/fauna-client'
 
-type Item = {
+type Post = {
   title: string
   description: string
   link: string
@@ -11,15 +11,15 @@ type Item = {
 }
 
 type HomeProps = {
-  items: Item[]
+  posts: Post[]
 }
 
-export default function Home({ items }: HomeProps) {
+export default function Home({ posts }: HomeProps) {
   return (
     <>
       <Header />
       <section className={styles.section}>
-        {items.map(({ title, description, link, date }) => {
+        {posts.map(({ title, description, link, date }) => {
           return (
             <article className={styles.card}>
               <div className={styles.imageContainer}></div>
@@ -40,11 +40,29 @@ export default function Home({ items }: HomeProps) {
   )
 }
 
-export async function getStaticProps(context) {
-  const res = await fetch('http://localhost:3000/api/getRSS') //add localhost to env variable
-  const items = await res.json()
+export const getStaticProps: GetStaticProps = async context => {
+  const { data } = await client.query(
+    q.Map(
+      q.Paginate(q.Match(q.Index('all_posts'))),
+      q.Lambda('post', q.Get(q.Var('post')))
+    )
+  )
+
+  const posts = data.map(post => {
+    const {
+      data: { title, description, link, date },
+    } = post
+    return {
+      title,
+      description,
+      link,
+      date,
+    }
+  })
 
   return {
-    props: items,
+    props: {
+      posts,
+    },
   }
 }

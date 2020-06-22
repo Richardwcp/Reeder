@@ -1,13 +1,12 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
+import { client, q } from '../utils/fauna-client'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { JSDOM } = jsdom
   const { window } = new JSDOM(``)
 
-  const promise = await fetch(
-    'http://feeds.skynews.com/feeds/rss/technology.xml'
-  )
+  const promise = await fetch('http://feeds.skynews.com/feeds/rss/home.xml')
   const str = await promise.text()
 
   const doc: Document = new window.DOMParser().parseFromString(str, 'text/xml')
@@ -30,6 +29,18 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     items.push(item)
   })
 
-  res.statusCode = 200
-  res.json({ items })
+  try {
+    await client.query(
+      q.Map(
+        items,
+        q.Lambda(
+          'post',
+          q.Create(q.Collection('posts'), { data: q.Var('post') })
+        )
+      )
+    )
+  } catch (error) {
+    console.error(error)
+  }
+  res.status(200).json({ items })
 }
