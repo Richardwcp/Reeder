@@ -2,11 +2,12 @@ $bermuda: #77d7b9;
 $white: #fff;
 $black: #000;
 
-.article {
+.section {
   margin: 1.875em auto 0;
   display: flex;
-  flex-direction: column;
-  align-items: center;
+  flex-direction: row;
+  justify-content: space-around;
+  flex-wrap: wrap;
 }
 
 .card {
@@ -23,6 +24,7 @@ $black: #000;
 .content {
   padding: 0.625em 0.625em 0em 0.625em;
   background-color: white;
+  height: 35%;
 }
 
 .author {
@@ -34,6 +36,7 @@ $black: #000;
 .headline {
   text-transform: uppercase;
   letter-spacing: 1.5px;
+  margin: 0;
 
   a {
     text-decoration: none;

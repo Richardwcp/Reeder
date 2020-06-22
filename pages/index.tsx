@@ -18,9 +18,9 @@ export default function Home({ items }: HomeProps) {
   return (
     <>
       <Header />
-      {items.map(({ title, description, link, date }) => {
-        return (
-          <section className={styles.article}>
+      <section className={styles.section}>
+        {items.map(({ title, description, link, date }) => {
+          return (
             <article className={styles.card}>
               <div className={styles.imageContainer}></div>
               <div className={styles.content}>
@@ -33,9 +33,9 @@ export default function Home({ items }: HomeProps) {
                 <p className={styles.author}>Jane Doe</p>
               </div>
             </article>
-          </section>
-        )
-      })}
+          )
+        })}
+      </section>
     </>
   )
 }
