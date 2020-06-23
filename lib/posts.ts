@@ -1,4 +1,4 @@
-import { client, q } from '../utils/fauna-client'
+import { client, q } from '@utils/fauna-client'
 
 export async function getAllPosts() {
   const { data } = await client.query(

@@ -1,6 +1,6 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
-import { client, q } from '../../utils/fauna-client'
+import { client, q } from '@utils/fauna-client'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const { JSDOM } = jsdom

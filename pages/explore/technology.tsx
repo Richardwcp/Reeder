@@ -1,8 +1,8 @@
 import { GetStaticProps } from 'next'
-import { getTechnologyPosts } from '../../lib/posts'
-import Feed from '../components/Feed/feed'
-import ExploreTab from '../components/ExploreTab/explore_tab'
-import { Post } from '../../lib/types/types'
+import { getTechnologyPosts } from '@lib/posts'
+import Feed from '@components/Feed/feed'
+import ExploreTab from '@components/ExploreTab/explore_tab'
+import { Post } from '@lib/types/types'
 
 type TechnologyProps = {
   posts: Post[]
