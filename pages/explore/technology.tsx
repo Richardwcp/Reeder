@@ -1,7 +1,7 @@
 import { GetStaticProps } from 'next'
 import Link from 'next/link'
 import styles from './technology.module.scss'
-import { getAllPosts } from '../../lib/posts'
+import { getTechnologyPosts } from '../../lib/posts'
 import Feed from '../components/Feed/feed'
 
 type Post = {
@@ -51,7 +51,7 @@ export default function Technology({ posts }: TechnologyProps) {
 }
 
 export const getStaticProps: GetStaticProps = async context => {
-  const posts = await getAllPosts()
+  const posts = await getTechnologyPosts()
 
   return {
     props: {
