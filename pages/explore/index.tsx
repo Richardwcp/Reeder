@@ -1,15 +1,8 @@
 import { GetStaticProps } from 'next'
-import Link from 'next/link'
-import styles from './index.module.scss'
 import { getAllPosts } from '../../lib/posts'
 import Feed from '../components/Feed/feed'
-
-type Post = {
-  title: string
-  description: string
-  link: string
-  date: string
-}
+import ExploreTab from '../components/ExploreTab/explore_tab'
+import { Post } from '../../lib/types/types'
 
 type HomeProps = {
   posts: Post[]
@@ -18,33 +11,7 @@ type HomeProps = {
 export default function Home({ posts }: HomeProps) {
   return (
     <>
-      <nav style={{ width: '100%' }}>
-        <ul
-          style={{
-            display: 'flex',
-            flexDirection: 'row',
-            listStyle: 'none',
-            justifyContent: 'space-around',
-            alignItems: 'center',
-          }}
-        >
-          <li>
-            <Link href='/explore'>
-              <a>Home</a>
-            </Link>
-          </li>
-          <li>
-            <Link href='/explore/technology'>
-              <a>Technology</a>
-            </Link>
-          </li>
-          <li>
-            <Link href='/explore/entertainment'>
-              <a>Entertainment</a>
-            </Link>
-          </li>
-        </ul>
-      </nav>
+      <ExploreTab />
       <Feed posts={posts} />
     </>
   )

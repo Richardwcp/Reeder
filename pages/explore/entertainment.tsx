@@ -1,14 +1,14 @@
 import { GetStaticProps } from 'next'
-import { getTechnologyPosts } from '../../lib/posts'
+import { getEntertainmentPosts } from '../../lib/posts'
 import Feed from '../components/Feed/feed'
 import ExploreTab from '../components/ExploreTab/explore_tab'
 import { Post } from '../../lib/types/types'
 
-type TechnologyProps = {
+type EntertainmentProps = {
   posts: Post[]
 }
 
-export default function Technology({ posts }: TechnologyProps) {
+export default function EntertainmentProps({ posts }: EntertainmentProps) {
   return (
     <>
       <ExploreTab />
@@ -18,7 +18,7 @@ export default function Technology({ posts }: TechnologyProps) {
 }
 
 export const getStaticProps: GetStaticProps = async context => {
-  const posts = await getTechnologyPosts()
+  const posts = await getEntertainmentPosts()
 
   return {
     props: {
