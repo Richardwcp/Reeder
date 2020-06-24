@@ -20,7 +20,7 @@ export async function getAllTechnologyPosts(): Promise<Post[]> {
   return extractPosts(data)
 }
 
-export async function getEntertainmentPosts(): Promise<Post[]> {
+export async function getAllEntertainmentPosts(): Promise<Post[]> {
   const category: string = 'Entertainment'
 
   const data = await getPostsByCategory(category)

@@ -1,5 +1,5 @@
 import { GetStaticProps } from 'next'
-import { getEntertainmentPosts } from '@lib/posts'
+import { getAllEntertainmentPosts } from '@lib/posts'
 import Feed from '@components/Feed/feed'
 import ExploreTab from '@components/ExploreTab/explore_tab'
 import { Post } from '@lib/types/types'
@@ -18,7 +18,7 @@ export default function EntertainmentProps({ posts }: EntertainmentProps) {
 }
 
 export const getStaticProps: GetStaticProps = async context => {
-  const posts = await getEntertainmentPosts()
+  const posts = await getAllEntertainmentPosts()
 
   return {
     props: {
