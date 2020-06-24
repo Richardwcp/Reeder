@@ -1,6 +1,7 @@
 import { client, q } from '@utils/fauna-client'
+import { Post } from '@lib/types/types'
 
-export async function getAllPosts() {
+export async function getAllPosts(): Promise<Post[]> {
   const { data } = await client.query(
     q.Map(
       q.Paginate(q.Match(q.Index('all_posts'))),
@@ -8,53 +9,46 @@ export async function getAllPosts() {
     )
   )
 
-  const posts = data.map(post => {
-    const {
-      data: { title, description, link, date },
-    } = post
-    return {
-      title,
-      description,
-      link,
-      date,
-    }
-  })
-
-  return posts
+  return extractPosts(data)
 }
 
-export async function getTechnologyPosts() {
+export async function getAllTechnologyPosts(): Promise<Post[]> {
+  const category: string = 'Technology'
+
+  const data = await getPostsByCategory(category)
+
+  return extractPosts(data)
+}
+
+export async function getEntertainmentPosts(): Promise<Post[]> {
+  const category: string = 'Entertainment'
+
+  const data = await getPostsByCategory(category)
+
+  return extractPosts(data)
+}
+
+async function getPostsByCategory(category: string) {
   const { data } = await client.query(
     q.Map(
-      q.Paginate(q.Match(q.Index('all_posts'))), //change index/ add categories in DB
-      q.Lambda('post', q.Get(q.Var('post')))
+      q.Paginate(
+        q.Join(
+          q.Join(
+            q.Match(q.Index('category_by_name'), category),
+            q.Index('feed_by_category')
+          ),
+          q.Index('posts_by_feed')
+        )
+      ),
+      q.Lambda('X', q.Get(q.Var('X')))
     )
   )
 
-  const posts = data.map(post => {
-    const {
-      data: { title, description, link, date },
-    } = post
-    return {
-      title,
-      description,
-      link,
-      date,
-    }
-  })
-
-  return posts
+  return data
 }
 
-export async function getEntertainmentPosts() {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('all_posts'))), //change index/ add categories in DB
-      q.Lambda('post', q.Get(q.Var('post')))
-    )
-  )
-
-  const posts = data.map(post => {
+function extractPosts(data): Post[] {
+  return data.map(post => {
     const {
       data: { title, description, link, date },
     } = post
@@ -65,6 +59,4 @@ export async function getEntertainmentPosts() {
       date,
     }
   })
-
-  return posts
 }
