@@ -1,7 +1,8 @@
 import React, { useState, SyntheticEvent } from 'react'
 import { GetStaticProps } from 'next'
 import styles from './rss_feed.module.scss'
-import { client, q } from '@utils/fauna-client'
+import { getAllCategories } from '@lib/category'
+
 interface Props {
   categories: string[]
 }
@@ -15,10 +16,10 @@ interface Form {
 
 export default function rss_feed({ categories }: Props) {
   const [form, setForm] = useState<Form>({
-    author: 'authorTest',
-    feedName: 'nameTest',
-    feedUrl: 'https://urlTest.com',
-    category: 'Home',
+    author: '',
+    feedName: '',
+    feedUrl: '',
+    category: '',
   })
 
   const { author, feedName, feedUrl, category } = form
@@ -36,16 +37,20 @@ export default function rss_feed({ categories }: Props) {
   const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault()
 
-    const res = await fetch('/api/feed/create', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify(form),
-    })
+    try {
+      const res = await fetch('/api/feed/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
 
-    const data = await res.json()
-    console.log('handleSubmit -> data', data)
+      const { msg } = await res.json()
+      alert(msg)
+    } catch (error) {
+      alert('Failed to create RSS feed')
+    }
   }
 
   return (
@@ -108,12 +113,7 @@ export default function rss_feed({ categories }: Props) {
 }
 
 export const getStaticProps: GetStaticProps = async context => {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('all_categories'))),
-      q.Lambda('category', q.Var('category'))
-    )
-  )
+  const data = await getAllCategories()
 
   return {
     props: {
