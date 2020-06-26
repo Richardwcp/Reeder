@@ -1,4 +1,4 @@
-import { client, q } from '@utils/fauna-client'
+import { client, q } from '@utils/fauna-client.utils'
 import { Post } from '@lib/types/types'
 
 export async function getAllPosts(): Promise<Post[]> {

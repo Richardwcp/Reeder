@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { client, q } from '@utils/fauna-client'
+import { client, q } from '@utils/fauna-client.utils'
 
 type Data = {
   success: boolean

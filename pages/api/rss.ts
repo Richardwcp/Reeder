@@ -1,7 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
-import { client, q } from '@utils/fauna-client'
-import { removeCDATA } from '@utils/remove-CDATA'
+import { client, q } from '@utils/fauna-client.utils'
+import { removeCdataFromString } from '@utils/sanitise-xml.utils'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const rssUrls = await getAllRssUrls()
@@ -63,8 +63,10 @@ async function extractRssContent(url) {
 
   let items = []
   nodeList.forEach(el => {
-    const title = removeCDATA(el.querySelector('title').innerHTML)
-    const description = removeCDATA(el.querySelector('description').innerHTML)
+    const title = removeCdataFromString(el.querySelector('title').innerHTML)
+    const description = removeCdataFromString(
+      el.querySelector('description').innerHTML
+    )
     const link = el.querySelector('link').innerHTML
     const date = el.querySelector('pubDate').innerHTML
 
