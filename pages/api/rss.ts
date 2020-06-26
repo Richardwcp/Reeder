@@ -21,6 +21,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   // }
 
   const items = await extractRssContent('http://feeds.bbci.co.uk/news/rss.xml')
+
+  for (var i = 0; i < items.length; i++) {
+    items[i].title = items[i].title
+      .trim()
+      .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
+    items[i].description = items[i].description
+      .trim()
+      .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
+  }
+
   res.status(200).json(items)
 }
 
