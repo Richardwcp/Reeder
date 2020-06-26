@@ -4,26 +4,30 @@ import { client, q } from '@utils/fauna-client'
 import { removeCDATA } from '@utils/remove-CDATA'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const authorName = 'BBC News'
+  const rssUrls = await getAllRssUrls()
 
-  const rssUrls = await getRssFeedsByAuthorName(authorName)
+  const promises = rssUrls.map(async url => {
+    const items = await extractRssContent(url)
+    return await saveToDb(items)
+  })
 
-  // const promises = rssUrls.map(async url => {
-  //   const items = await extractRssContent(url)
-  //   return await saveToDb(items)
-  // })
+  try {
+    await Promise.all(promises)
+    res.status(200).send('Saved')
+  } catch (error) {
+    console.error(error)
+    res.status(500).send('Internal server error')
+  }
+}
 
-  // try {
-  //   await Promise.all(promises)
-  //   res.status(200).send('BBC News posts saved to DB')
-  // } catch (error) {
-  //   console.error(error)
-  //   res.status(500).send('Internal server error')
-  // }
-
-  const items = await extractRssContent('http://feeds.bbci.co.uk/news/rss.xml')
-
-  res.status(200).json(items)
+async function getAllRssUrls() {
+  const { data } = await client.query(
+    q.Map(
+      q.Paginate(q.Match(q.Index('all_rss_urls'))),
+      q.Lambda('url', q.Var('url'))
+    )
+  )
+  return data
 }
 
 async function getRssFeedsByAuthorName(name: string) {
