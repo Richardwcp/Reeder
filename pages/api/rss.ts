@@ -1,6 +1,7 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
 import { client, q } from '@utils/fauna-client'
+import { removeCDATA } from '@utils/remove-CDATA'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const authorName = 'BBC News'
@@ -21,15 +22,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   // }
 
   const items = await extractRssContent('http://feeds.bbci.co.uk/news/rss.xml')
-
-  for (var i = 0; i < items.length; i++) {
-    items[i].title = items[i].title
-      .trim()
-      .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
-    items[i].description = items[i].description
-      .trim()
-      .replace(/^(\/\/\s*)?<!\[CDATA\[|(\/\/\s*)?\]\]>$/g, '')
-  }
 
   res.status(200).json(items)
 }
@@ -67,8 +59,8 @@ async function extractRssContent(url) {
 
   let items = []
   nodeList.forEach(el => {
-    const title = el.querySelector('title').innerHTML
-    const description = el.querySelector('description').innerHTML
+    const title = removeCDATA(el.querySelector('title').innerHTML)
+    const description = removeCDATA(el.querySelector('description').innerHTML)
     const link = el.querySelector('link').innerHTML
     const date = el.querySelector('pubDate').innerHTML
 
