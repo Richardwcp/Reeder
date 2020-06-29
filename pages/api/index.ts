@@ -1,9 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { client, q } from '@utils/fauna-client.utils'
 import { connectToDatabase } from '@utils/database'
-
-// const secret = process.env.FAUNADB_SECRET_KEY
-// const client: Client = new faunadb.Client({ secret })
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
