@@ -2,6 +2,8 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
 import { client, q } from '@utils/fauna-client.utils'
 import { removeCdataFromString } from '@utils/sanitise-xml.utils'
+import { getAllRssUrls, getFeedByUrl } from '@lib/rss_feed'
+import { getTimestampFromDate } from '@utils/date.utils'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const rssUrls = await getAllRssUrls()
@@ -20,37 +22,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
   }
 }
 
-async function getAllRssUrls() {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('all_rss_urls'))),
-      q.Lambda('url', q.Var('url'))
-    )
-  )
-  return data
-}
-
-async function getRssFeedsByAuthorName(name: string) {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(
-        q.Join(
-          q.Match(q.Index('author_by_name'), name),
-          q.Index('feeds_by_author')
-        )
-      ),
-      q.Lambda('ref', q.Get(q.Var('ref')))
-    )
-  )
-
-  const rssUrls = data.map(({ data: { url } }) => {
-    return url
-  })
-
-  return rssUrls
-}
-
-async function extractRssContent(url) {
+async function extractRssContent(url: string) {
   const { JSDOM } = jsdom
   const { window } = new JSDOM(``)
 
@@ -68,13 +40,13 @@ async function extractRssContent(url) {
       el.querySelector('description').innerHTML
     )
     const link = el.querySelector('link').innerHTML
-    const date = el.querySelector('pubDate').innerHTML
+    const pubDate = getTimestampFromDate(el.querySelector('pubDate').innerHTML)
 
     const item = {
       title,
       description,
       link,
-      date,
+      pubDate,
       rss_feed: feedRef,
     }
 
@@ -84,6 +56,7 @@ async function extractRssContent(url) {
   return items
 }
 
+//ToDo: Need to move to lib dir
 async function saveToDb(items: Array<any>) {
   try {
     await client.query(
@@ -98,11 +71,4 @@ async function saveToDb(items: Array<any>) {
   } catch (error) {
     console.error(error)
   }
-}
-
-async function getFeedByUrl(url: string) {
-  const { ref } = await client.query(
-    q.Get(q.Match(q.Index('feed_by_url'), url))
-  )
-  return ref
 }
