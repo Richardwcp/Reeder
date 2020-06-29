@@ -6,7 +6,7 @@ type Post = {
   title: string
   description: string
   link: string
-  date: string
+  pubDate: number
 }
 
 interface Props {
@@ -16,13 +16,13 @@ interface Props {
 export default function feed({ posts }: Props) {
   return (
     <section className={styles.section}>
-      {posts.map(({ title, description, link, date }) => {
+      {posts.map(({ title, description, link, pubDate }) => {
         return (
           <Card
             title={title}
             description={description}
             link={link}
-            date={date}
+            pubDate={pubDate}
           />
         )
       })}
