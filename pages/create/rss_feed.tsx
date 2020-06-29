@@ -57,9 +57,12 @@ export default function rss_feed({ categories }: Props) {
     <>
       <form onSubmit={handleSubmit}>
         <fieldset className={styles.formGroup}>
-          <legend>New RSS feed</legend>
-          <label htmlFor='author'>Author Name: </label>
+          <legend className={styles.legendTitle}>New RSS Feed</legend>
+          <label className={styles.fieldLabel} htmlFor='author'>
+            Author Name:
+          </label>
           <input
+            className={styles.inputField}
             type='text'
             id='author'
             value={author}
@@ -67,8 +70,11 @@ export default function rss_feed({ categories }: Props) {
             name='author'
             required
           />
-          <label htmlFor='feedName'>Feed Name: </label>
+          <label className={styles.fieldLabel} htmlFor='feedName'>
+            Feed Name:
+          </label>
           <input
+            className={styles.inputField}
             type='text'
             id='feedName'
             value={feedName}
@@ -76,8 +82,11 @@ export default function rss_feed({ categories }: Props) {
             name='feedName'
             required
           />
-          <label htmlFor='feedUrl'>Feed Url: </label>
+          <label className={styles.fieldLabel} htmlFor='feedUrl'>
+            Feed Url:
+          </label>
           <input
+            className={styles.inputField}
             type='url'
             id='feedUrl'
             value={feedUrl}
@@ -85,9 +94,12 @@ export default function rss_feed({ categories }: Props) {
             name='feedUrl'
             required
           />
-          <label htmlFor='category'>Category: </label>
+          <label className={styles.fieldLabel} htmlFor='category'>
+            Category:
+          </label>
 
           <select
+            className={styles.selectField}
             name='category'
             id='category'
             onChange={handleChange}

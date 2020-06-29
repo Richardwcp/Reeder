@@ -1,4 +1,42 @@
+@use '../variables' as *;
+
 .formGroup {
   display: flex;
   flex-direction: column;
+}
+
+.legendTitle {
+  font-size: $font-size-6;
+  font-weight: $semi-large-weight;
+  color: $black-1;
+}
+
+.fieldLabel {
+  font-size: $font-size-4;
+  font-weight: $semi-large-weight;
+  color: $black-1;
+  padding: 1em 0 0.3em 0;
+  text-shadow: 1px 1px $black-6;
+}
+
+.inputField {
+  height: 2.75vh;
+  border-radius: 0.5em;
+  border: 0.1em solid $black-6;
+  box-shadow: 0 0.25em 0.625em $black-6;
+  &:focus {
+    outline: none;
+    border-bottom: 0.2em solid rgb(65, 120, 223);
+  }
+}
+
+.selectField {
+  height: 3.5vh;
+  border-radius: 0.5em;
+  border: 0.1em solid $black-6;
+  box-shadow: 0 0.25em 0.625em $black-6;
+
+  &:focus {
+    outline: none;
+  }
 }
