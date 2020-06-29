@@ -1,8 +1,9 @@
 import { MongoClient } from 'mongodb'
 
 const MONGODB_URI =
-  'mongodb+srv://admin:wecodeplus@reeder-i7l88.mongodb.net/reeder_db?retryWrites=true&w=majority'
+  'mongodb+srv://admin:wecodeplus@reeder-i7l88.mongodb.net/reeder?retryWrites=true&w=majority'
 let cachedDb: any = null
+console.log('cachedDb', cachedDb)
 
 export const connectToDatabase = async () => {
   if (cachedDb) {
@@ -16,6 +17,7 @@ export const connectToDatabase = async () => {
   })
     .then(client => {
       let db = client.db('reeder_db')
+      console.log('connectToDatabase -> db', db)
       console.log('New DB Connection')
       cachedDb = db
       return cachedDb

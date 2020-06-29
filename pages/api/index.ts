@@ -3,14 +3,10 @@ import { connectToDatabase } from '@utils/database'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   try {
-    let dbo = await connectToDatabase()
+    const dbo = await connectToDatabase()
+    const customers = await dbo.collection('customers').find().toArray()
 
-    dbo.createCollection('customers7', function (err, res) {
-      if (err) throw err
-      console.log('Collection created!')
-    })
-
-    res.status(200).send('test')
+    res.status(200).json({ customers })
   } catch (e) {
     res.status(500).json({ error: e.message })
   }
