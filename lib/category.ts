@@ -1,4 +1,4 @@
-import { client, q } from '@utils/fauna-client'
+import { client, q } from '@utils/fauna-client.utils'
 
 export async function getAllCategories(): Promise<string[]> {
   const { data } = await client.query(

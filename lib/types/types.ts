@@ -2,7 +2,7 @@ interface Post {
   title: string
   description: string
   link: string
-  date: string
+  pubDate: number
 }
 
 export type { Post }

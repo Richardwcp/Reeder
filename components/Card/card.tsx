@@ -1,14 +1,15 @@
 import React from 'react'
 import styles from './card.module.scss'
+import { getDateFromTimestamp } from '@utils/date.utils'
 
 interface Props {
   title: string
   description: string
   link: string
-  date: string
+  pubDate: number
 }
 
-export default function card({ title, description, link, date }: Props) {
+export default function card({ title, description, link, pubDate }: Props) {
   return (
     <article className={styles.card}>
       {/* <div className={styles.imageContainer}></div> */}
@@ -20,7 +21,8 @@ export default function card({ title, description, link, date }: Props) {
           <p className={styles.description}>{description}</p>
         </div>
         <div className={styles.cardBottom}>
-          <p className={styles.author}>Jane Doe</p>
+          <span>{getDateFromTimestamp(pubDate)}</span>
+          <span className={styles.author}>Jane Doe</span>
         </div>
       </div>
     </article>
