@@ -4,8 +4,10 @@ import { Post } from '@lib/types/types'
 export async function getAllPosts(): Promise<Post[]> {
   const { data } = await client.query(
     q.Map(
-      q.Paginate(q.Match(q.Index('all_posts'))),
-      q.Lambda('post', q.Get(q.Var('post')))
+      q.Paginate(q.Match(q.Index('posts_sort_by_date_desc')), {
+        size: 1000,
+      }),
+      q.Lambda(['date', 'ref'], q.Get(q.Var('ref')))
     )
   )
 
@@ -50,13 +52,13 @@ async function getPostsByCategory(category: string) {
 function extractPosts(data): Post[] {
   return data.map(post => {
     const {
-      data: { title, description, link, date },
+      data: { title, description, link, pubDate },
     } = post
     return {
       title,
       description,
       link,
-      date,
+      pubDate,
     }
   })
 }
