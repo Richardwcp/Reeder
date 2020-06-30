@@ -47,7 +47,7 @@ async function extractRssContent(url: string) {
       description,
       link,
       pubDate,
-      rss_feed: feedId,
+      rss_feed_id: feedId,
     }
 
     items.push(item)
