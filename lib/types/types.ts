@@ -4,6 +4,7 @@ interface Post {
   description: string
   link: string
   pubDate: number
+  rss_feed_id: string
 }
 
 export type { Post }

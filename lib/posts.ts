@@ -7,7 +7,6 @@ export async function getAllPosts(): Promise<Post[]> {
   const posts = await db
     .collection('posts')
     .find({})
-    .project({ rss_feed_id: false })
     .sort({ pubDate: -1 })
     .toArray()
 
@@ -63,8 +62,12 @@ async function getPostsByCategory(category: string) {
 
 function convertObjectIdToString(data): Post[] {
   return data.map(post => {
-    const { _id } = post
-    return { ...post, _id: JSON.stringify(_id) }
+    const { _id, rss_feed_id } = post
+    return {
+      ...post,
+      _id: JSON.stringify(_id),
+      rss_feed_id: JSON.stringify(rss_feed_id),
+    }
   })
 }
 
