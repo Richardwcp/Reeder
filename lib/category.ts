@@ -8,7 +8,7 @@ interface Category {
 export async function getAllCategories(): Promise<Category[]> {
   const db = await connectToDatabase()
 
-  const categories = await db.collection('category').find({}).toArray()
+  const categories = await db.collection('category').distinct('name')
 
   return categories
 }
