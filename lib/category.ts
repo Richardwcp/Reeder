@@ -1,11 +1,14 @@
-import { client, q } from '@utils/fauna-client.utils'
+import { connectToDatabase } from '@utils/mongodb.utils'
 
-export async function getAllCategories(): Promise<string[]> {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('all_categories'))),
-      q.Lambda('category', q.Var('category'))
-    )
-  )
-  return data
+interface Category {
+  _id: string
+  name: string
+}
+
+export async function getAllCategories(): Promise<Category[]> {
+  const db = await connectToDatabase()
+
+  const categories = await db.collection('category').find({}).toArray()
+
+  return categories
 }
