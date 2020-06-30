@@ -126,10 +126,11 @@ export default function rss_feed({ categories }: Props) {
 
 export const getStaticProps: GetStaticProps = async context => {
   const data = await getAllCategories()
+  const categories = data.map(({ name }) => name)
 
   return {
     props: {
-      categories: data,
+      categories: categories,
     },
   }
 }
