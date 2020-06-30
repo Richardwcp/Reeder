@@ -1,9 +1,7 @@
 import { MongoClient } from 'mongodb'
 
-const MONGODB_URI =
-  'mongodb+srv://admin:wecodeplus@reeder-i7l88.mongodb.net/reeder?retryWrites=true&w=majority'
+const MONGODB_URI = process.env.MONGODB_URI
 let cachedDb: any = null
-console.log('cachedDb', cachedDb)
 
 export const connectToDatabase = async () => {
   if (cachedDb) {
@@ -16,8 +14,7 @@ export const connectToDatabase = async () => {
     useUnifiedTopology: true,
   })
     .then(client => {
-      let db = client.db('reeder_db')
-      console.log('connectToDatabase -> db', db)
+      let db = client.db()
       console.log('New DB Connection')
       cachedDb = db
       return cachedDb
