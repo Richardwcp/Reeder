@@ -1,5 +1,6 @@
 import { client, q } from '@utils/fauna-client.utils'
 import { Post } from '@lib/types/types'
+import { connectToDatabase } from '@utils/mongodb.utils'
 
 export async function getAllPosts(): Promise<Post[]> {
   const { data } = await client.query(
@@ -61,4 +62,13 @@ function extractPosts(data): Post[] {
       pubDate,
     }
   })
+}
+
+export async function savePostsToDb(items: Array<any>) {
+  try {
+    const db = await connectToDatabase()
+    await db.collection('posts').insertMany(items)
+  } catch (error) {
+    console.error(error)
+  }
 }

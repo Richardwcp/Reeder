@@ -1,12 +1,10 @@
 import { client, q } from '@utils/fauna-client.utils'
+import { connectToDatabase } from '@utils/mongodb.utils'
 
 async function getAllRssUrls(): Promise<string[]> {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('all_rss_urls'))),
-      q.Lambda('url', q.Var('url'))
-    )
-  )
+  const db = await connectToDatabase()
+  const data = await db.collection('rss_feed').distinct('url')
+
   return data
 }
 
@@ -29,11 +27,11 @@ async function getRssFeedsByAuthorName(name: string) {
   return rssUrls
 }
 
-async function getFeedByUrl(url: string) {
-  const { ref } = await client.query(
-    q.Get(q.Match(q.Index('feed_by_url'), url))
-  )
-  return ref
+async function getFeedIdByUrl(url: string) {
+  const db = await connectToDatabase()
+  const { _id } = await db.collection('rss_feed').findOne({ url: url })
+
+  return _id
 }
 
-export { getAllRssUrls, getFeedByUrl }
+export { getAllRssUrls, getFeedIdByUrl }
