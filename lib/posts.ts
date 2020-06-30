@@ -1,4 +1,3 @@
-import { client, q } from '@utils/fauna-client.utils'
 import { Post } from '@lib/types/types'
 import { connectToDatabase } from '@utils/mongodb.utils'
 
@@ -8,7 +7,8 @@ export async function getAllPosts(): Promise<Post[]> {
   const posts = await db
     .collection('posts')
     .find({})
-    .project({ rss_feed: false })
+    .project({ rss_feed_id: false })
+    .sort({ pubDate: -1 })
     .toArray()
 
   return convertObjectIdToString(posts)
@@ -17,36 +17,48 @@ export async function getAllPosts(): Promise<Post[]> {
 export async function getAllTechnologyPosts(): Promise<Post[]> {
   const category: string = 'Technology'
 
-  const data = await getPostsByCategory(category)
+  const posts = await getPostsByCategory(category)
 
-  return convertObjectIdToString(data)
+  return convertObjectIdToString(posts)
 }
 
 export async function getAllEntertainmentPosts(): Promise<Post[]> {
   const category: string = 'Entertainment'
 
-  const data = await getPostsByCategory(category)
+  const posts = await getPostsByCategory(category)
 
-  return convertObjectIdToString(data)
+  return convertObjectIdToString(posts)
 }
 
 async function getPostsByCategory(category: string) {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(
-        q.Join(
-          q.Join(
-            q.Match(q.Index('category_by_name'), category),
-            q.Index('feed_by_category')
-          ),
-          q.Index('posts_by_feed')
-        )
-      ),
-      q.Lambda('X', q.Get(q.Var('X')))
-    )
-  )
-
-  return data
+  const db = await connectToDatabase()
+  return await db
+    .collection('posts')
+    .aggregate([
+      {
+        $lookup: {
+          from: 'rss_feed',
+          localField: 'rss_feed_id',
+          foreignField: '_id',
+          as: 'rss',
+        },
+      },
+      {
+        $lookup: {
+          from: 'category',
+          localField: 'rss.category_id',
+          foreignField: '_id',
+          as: 'cat',
+        },
+      },
+      { $match: { 'cat.name': category } },
+      { $sort: { pubDate: -1 } },
+    ])
+    .project({
+      rss: false,
+      cat: false,
+    })
+    .toArray()
 }
 
 function convertObjectIdToString(data): Post[] {
