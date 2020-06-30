@@ -17,9 +17,10 @@ interface Props {
 export default function feed({ posts }: Props) {
   return (
     <section className={styles.section}>
-      {posts.map(({ title, description, link, pubDate }) => {
+      {posts.map(({ title, description, link, pubDate, _id }) => {
         return (
           <Card
+            key={_id}
             title={title}
             description={description}
             link={link}
