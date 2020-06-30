@@ -11,7 +11,7 @@ export async function getAllPosts(): Promise<Post[]> {
     .project({ rss_feed: false })
     .toArray()
 
-  return extractPosts(posts)
+  return convertObjectIdToString(posts)
 }
 
 export async function getAllTechnologyPosts(): Promise<Post[]> {
@@ -19,7 +19,7 @@ export async function getAllTechnologyPosts(): Promise<Post[]> {
 
   const data = await getPostsByCategory(category)
 
-  return extractPosts(data)
+  return convertObjectIdToString(data)
 }
 
 export async function getAllEntertainmentPosts(): Promise<Post[]> {
@@ -27,7 +27,7 @@ export async function getAllEntertainmentPosts(): Promise<Post[]> {
 
   const data = await getPostsByCategory(category)
 
-  return extractPosts(data)
+  return convertObjectIdToString(data)
 }
 
 async function getPostsByCategory(category: string) {
@@ -49,11 +49,10 @@ async function getPostsByCategory(category: string) {
   return data
 }
 
-function extractPosts(data): Post[] {
+function convertObjectIdToString(data): Post[] {
   return data.map(post => {
-    const { _id: id } = post
-    console.log(id.toString())
-    return { _id: JSON.stringify(id), ...post }
+    const { _id } = post
+    return { ...post, _id: JSON.stringify(_id) }
   })
 }
 
