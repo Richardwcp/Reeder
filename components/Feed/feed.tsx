@@ -3,6 +3,7 @@ import styles from './feed.module.scss'
 import Card from '../Card/card'
 
 type Post = {
+  _id: string
   title: string
   description: string
   link: string

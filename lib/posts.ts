@@ -3,16 +3,15 @@ import { Post } from '@lib/types/types'
 import { connectToDatabase } from '@utils/mongodb.utils'
 
 export async function getAllPosts(): Promise<Post[]> {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('posts_sort_by_date_desc')), {
-        size: 1000,
-      }),
-      q.Lambda(['date', 'ref'], q.Get(q.Var('ref')))
-    )
-  )
+  const db = await connectToDatabase()
 
-  return extractPosts(data)
+  const posts = await db
+    .collection('posts')
+    .find({})
+    .project({ rss_feed: false })
+    .toArray()
+
+  return extractPosts(posts)
 }
 
 export async function getAllTechnologyPosts(): Promise<Post[]> {
@@ -52,15 +51,9 @@ async function getPostsByCategory(category: string) {
 
 function extractPosts(data): Post[] {
   return data.map(post => {
-    const {
-      data: { title, description, link, pubDate },
-    } = post
-    return {
-      title,
-      description,
-      link,
-      pubDate,
-    }
+    const { _id: id } = post
+    console.log(id.toString())
+    return { _id: JSON.stringify(id), ...post }
   })
 }
 
