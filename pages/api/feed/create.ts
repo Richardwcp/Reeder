@@ -15,10 +15,6 @@ export default async (
     try {
       const db = await connectToDatabase()
 
-      const { insertedId: authorId } = await db.collection('author').insertOne({
-        name: author,
-      })
-
       const { _id: categoryId } = await db
         .collection('category')
         .findOne({ name: category })
@@ -26,7 +22,7 @@ export default async (
       await db.collection('rss_feed').insertOne({
         name: feedName,
         url: feedUrl,
-        author: authorId,
+        author: author,
         category: categoryId,
       })
 
