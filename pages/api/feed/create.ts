@@ -33,7 +33,7 @@ export default async (
         msg: 'Something went wrong, please try again.',
       })
     }
+  } else {
+    res.status(404).send('404 Not Found')
   }
-
-  res.status(404).send('404 Not Found')
 }
