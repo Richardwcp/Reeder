@@ -23,7 +23,7 @@ export default async (
         name: feedName,
         url: feedUrl,
         author: author,
-        category: categoryId,
+        category_id: categoryId,
       })
 
       res.status(200).json({ success: true, msg: 'Feed created' })
