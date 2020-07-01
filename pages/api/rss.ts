@@ -17,11 +17,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     )
 
     if (!isUpdated(lastUpdatedAt, lastBuildDate)) {
-      let posts = []
       const nodeList = doc.querySelectorAll('item')
-      const item = extractPostFromNodeList(nodeList)
-      const post = { ...item, rss_feed_id: feedId }
-      posts.push(post)
+      const items = extractPostFromNodeList(nodeList)
+      const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
 
       const filter = { _id: feedId }
       const update = { lastUpdatedAt: lastBuildDate }
@@ -55,7 +53,7 @@ async function createDocument(url: string): Promise<Document> {
 }
 
 function extractPostFromNodeList(nodeList) {
-  let item = {}
+  let items = []
 
   nodeList.forEach(el => {
     const title = removeCdataFromString(el.querySelector('title').textContent)
@@ -67,15 +65,17 @@ function extractPostFromNodeList(nodeList) {
       el.querySelector('pubDate').textContent
     )
 
-    item = {
+    const item = {
       title,
       description,
       link,
       pubDate,
     }
+
+    items.push(item)
   })
 
-  return item
+  return items
 }
 
 function isUpdated(lastUpdatedAt: number, lastBuildDate: number) {
