@@ -24,6 +24,7 @@ export default async (
         url: feedUrl,
         author: author,
         category_id: categoryId,
+        lastUpdatedAt: null,
       })
 
       res.status(200).json({ success: true, msg: 'Feed created' })

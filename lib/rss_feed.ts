@@ -7,11 +7,20 @@ async function getAllRssUrls(): Promise<string[]> {
   return data
 }
 
-async function getFeedIdByUrl(url: string) {
+async function getFeedByUrl(url: string) {
   const db = await connectToDatabase()
-  const { _id } = await db.collection('rss_feed').findOne({ url: url })
+  const feed = await db.collection('rss_feed').findOne({ url: url })
 
-  return _id
+  return feed
 }
 
-export { getAllRssUrls, getFeedIdByUrl }
+async function updateRssFeed(filter: object, update: object) {
+  try {
+    const db = await connectToDatabase()
+    await db.collection('rss_feed').updateOne(filter, { $set: update })
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export { getAllRssUrls, getFeedByUrl, updateRssFeed }
