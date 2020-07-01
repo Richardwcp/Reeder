@@ -1,5 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { client, q } from '@utils/fauna-client.utils'
+import { connectToDatabase } from '@utils/mongodb.utils'
 
 type Data = {
   success: boolean
@@ -13,24 +13,19 @@ export default async (
     const { author, feedName, feedUrl, category } = req.body
 
     try {
-      const { ref: authorRef } = await client.query(
-        q.Create(q.Collection('author'), { data: { name: author } })
-      )
+      const db = await connectToDatabase()
 
-      const { ref: categoryRef } = await client.query(
-        q.Get(q.Match(q.Index('category_by_name'), category))
-      )
+      const { _id: categoryId } = await db
+        .collection('category')
+        .findOne({ name: category })
 
-      await client.query(
-        q.Create(q.Collection('rss_feed'), {
-          data: {
-            name: feedName,
-            url: feedUrl,
-            author: authorRef,
-            category: categoryRef,
-          },
-        })
-      )
+      await db.collection('rss_feed').insertOne({
+        name: feedName,
+        url: feedUrl,
+        author: author,
+        category_id: categoryId,
+      })
+
       res.status(200).json({ success: true, msg: 'Feed created' })
     } catch (error) {
       res.status(500).json({
@@ -38,7 +33,7 @@ export default async (
         msg: 'Something went wrong, please try again.',
       })
     }
+  } else {
+    res.status(404).send('404 Not Found')
   }
-
-  res.status(404).send('404 Not Found')
 }

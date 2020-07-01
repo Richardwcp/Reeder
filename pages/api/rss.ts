@@ -1,16 +1,16 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import jsdom from 'jsdom'
-import { client, q } from '@utils/fauna-client.utils'
 import { removeCdataFromString } from '@utils/sanitise-xml.utils'
-import { getAllRssUrls, getFeedByUrl } from '@lib/rss_feed'
+import { getAllRssUrls, getFeedIdByUrl } from '@lib/rss_feed'
 import { getTimestampFromDate } from '@utils/date.utils'
+import { savePostsToDb } from '@lib/posts'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const rssUrls = await getAllRssUrls()
 
   const promises = rssUrls.map(async url => {
     const items = await extractRssContent(url)
-    return await saveToDb(items)
+    return await savePostsToDb(items)
   })
 
   try {
@@ -26,7 +26,7 @@ async function extractRssContent(url: string) {
   const { JSDOM } = jsdom
   const { window } = new JSDOM(``)
 
-  const feedRef = await getFeedByUrl(url)
+  const feedId = await getFeedIdByUrl(url)
   const promise = await fetch(url)
   const str = await promise.text()
 
@@ -47,28 +47,11 @@ async function extractRssContent(url: string) {
       description,
       link,
       pubDate,
-      rss_feed: feedRef,
+      rss_feed_id: feedId,
     }
 
     items.push(item)
   })
 
   return items
-}
-
-//ToDo: Need to move to lib dir
-async function saveToDb(items: Array<any>) {
-  try {
-    await client.query(
-      q.Map(
-        items,
-        q.Lambda(
-          'post',
-          q.Create(q.Collection('posts'), { data: q.Var('post') })
-        )
-      )
-    )
-  } catch (error) {
-    console.error(error)
-  }
 }

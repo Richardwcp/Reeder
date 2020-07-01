@@ -1,64 +1,81 @@
-import { client, q } from '@utils/fauna-client.utils'
 import { Post } from '@lib/types/types'
+import { connectToDatabase } from '@utils/mongodb.utils'
 
 export async function getAllPosts(): Promise<Post[]> {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(q.Match(q.Index('posts_sort_by_date_desc')), {
-        size: 1000,
-      }),
-      q.Lambda(['date', 'ref'], q.Get(q.Var('ref')))
-    )
-  )
+  const db = await connectToDatabase()
 
-  return extractPosts(data)
+  const posts = await db
+    .collection('posts')
+    .find({})
+    .sort({ pubDate: -1 })
+    .toArray()
+
+  return convertObjectIdToString(posts)
 }
 
 export async function getAllTechnologyPosts(): Promise<Post[]> {
   const category: string = 'Technology'
 
-  const data = await getPostsByCategory(category)
+  const posts = await getPostsByCategory(category)
 
-  return extractPosts(data)
+  return convertObjectIdToString(posts)
 }
 
 export async function getAllEntertainmentPosts(): Promise<Post[]> {
   const category: string = 'Entertainment'
 
-  const data = await getPostsByCategory(category)
+  const posts = await getPostsByCategory(category)
 
-  return extractPosts(data)
+  return convertObjectIdToString(posts)
 }
 
 async function getPostsByCategory(category: string) {
-  const { data } = await client.query(
-    q.Map(
-      q.Paginate(
-        q.Join(
-          q.Join(
-            q.Match(q.Index('category_by_name'), category),
-            q.Index('feed_by_category')
-          ),
-          q.Index('posts_by_feed')
-        )
-      ),
-      q.Lambda('X', q.Get(q.Var('X')))
-    )
-  )
-
-  return data
+  const db = await connectToDatabase()
+  return await db
+    .collection('posts')
+    .aggregate([
+      {
+        $lookup: {
+          from: 'rss_feed',
+          localField: 'rss_feed_id',
+          foreignField: '_id',
+          as: 'rss',
+        },
+      },
+      {
+        $lookup: {
+          from: 'category',
+          localField: 'rss.category_id',
+          foreignField: '_id',
+          as: 'cat',
+        },
+      },
+      { $match: { 'cat.name': category } },
+      { $sort: { pubDate: -1 } },
+    ])
+    .project({
+      rss: false,
+      cat: false,
+    })
+    .toArray()
 }
 
-function extractPosts(data): Post[] {
+function convertObjectIdToString(data): Post[] {
   return data.map(post => {
-    const {
-      data: { title, description, link, pubDate },
-    } = post
+    const { _id, rss_feed_id } = post
     return {
-      title,
-      description,
-      link,
-      pubDate,
+      ...post,
+      _id: JSON.stringify(_id),
+      rss_feed_id: JSON.stringify(rss_feed_id),
     }
   })
+}
+
+export async function savePostsToDb(items: Array<any>) {
+  try {
+    const db = await connectToDatabase()
+    await db.collection('posts').insertMany(items)
+  } catch (error) {
+    console.error(error)
+  }
 }
