@@ -8,6 +8,8 @@ import { savePostsToDb } from '@lib/posts'
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const CRON_SECRET = process.env.CRON_SECRET_KEY
   const auth = req.headers.authorization
+  console.log('CRON_SECRET', CRON_SECRET)
+  console.log('auth', auth)
 
   if (auth === CRON_SECRET) {
     const rssUrls = await getAllRssUrls()
