@@ -20,7 +20,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         doc.querySelector('lastBuildDate').textContent
       )
 
-      if (!isFeedUpdated(lastUpdatedAt, lastBuildDate)) {
+      const isLatestFeed = lastUpdatedAt === lastBuildDate
+
+      if (!isLatestFeed) {
         const nodeList = doc.querySelectorAll('item')
         const items = extractPostFromNodeList(nodeList)
         const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
@@ -68,9 +70,9 @@ function extractPostFromNodeList(nodeList) {
   nodeList.forEach(async el => {
     const link = el.querySelector('link').textContent
 
-    const isUpdated = await isPostUpdated(link)
+    const isDuplicate = await isDuplicatePost(link)
 
-    if (!isUpdated) {
+    if (isDuplicate) {
       return
     }
 
@@ -95,11 +97,7 @@ function extractPostFromNodeList(nodeList) {
   return items
 }
 
-function isFeedUpdated(lastUpdatedAt: number, lastBuildDate: number): boolean {
-  return
-}
-
-async function isPostUpdated(url: string): Promise<boolean> {
+async function isDuplicatePost(url: string): Promise<boolean> {
   const post = await findPostByUrl(url)
   return post ? true : false
 }
