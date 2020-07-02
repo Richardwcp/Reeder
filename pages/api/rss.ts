@@ -31,10 +31,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         const update = { lastUpdatedAt: lastBuildDate }
         await updateRssFeed(filter, update)
 
-        return await savePostsToDb(posts)
+        if (posts.length > 0) {
+          return await savePostsToDb(posts)
+        }
       }
-
-      return Promise.resolve()
     })
 
     try {
