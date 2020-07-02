@@ -79,3 +79,9 @@ export async function savePostsToDb(items: Array<any>) {
     console.error(error)
   }
 }
+
+export async function findPostByUrl(url: string) {
+  const db = await connectToDatabase()
+  const post = await db.collection('posts').findOne({ link: url })
+  return post
+}
