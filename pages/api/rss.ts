@@ -33,7 +33,10 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
   try {
     await Promise.all(promises)
-    res.status(200).send('Saved')
+    res.status(200).json({
+      success: true,
+      message: 'Posts saved',
+    })
   } catch (error) {
     console.error(error)
     res.status(500).send('Internal server error')
