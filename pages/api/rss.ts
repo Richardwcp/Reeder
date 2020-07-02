@@ -3,7 +3,7 @@ import jsdom from 'jsdom'
 import { removeCdataFromString } from '@utils/sanitise-xml.utils'
 import { getAllRssUrls, getFeedByUrl, updateRssFeed } from '@lib/rss_feed'
 import { getTimestampFromDate } from '@utils/date.utils'
-import { savePostsToDb } from '@lib/posts'
+import { savePostsToDb, findPostByUrl } from '@lib/posts'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const CRON_SECRET = process.env.CRON_SECRET_KEY
@@ -20,7 +20,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         doc.querySelector('lastBuildDate').textContent
       )
 
-      if (!isUpdated(lastUpdatedAt, lastBuildDate)) {
+      if (!isFeedUpdated(lastUpdatedAt, lastBuildDate)) {
         const nodeList = doc.querySelectorAll('item')
         const items = extractPostFromNodeList(nodeList)
         const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
@@ -65,14 +65,21 @@ async function createDocument(url: string): Promise<Document> {
 function extractPostFromNodeList(nodeList) {
   let items = []
 
-  nodeList.forEach(el => {
+  nodeList.forEach(async el => {
+    const link = el.querySelector('link').textContent
+
+    const isUpdated = await isPostUpdated(link)
+
+    if (!isUpdated) {
+      return
+    }
+
+    const pubDate = getTimestampFromDate(
+      el.querySelector('pubDate').textContent
+    )
     const title = removeCdataFromString(el.querySelector('title').textContent)
     const description = removeCdataFromString(
       el.querySelector('description').textContent
-    )
-    const link = el.querySelector('link').textContent
-    const pubDate = getTimestampFromDate(
-      el.querySelector('pubDate').textContent
     )
 
     const item = {
@@ -88,6 +95,11 @@ function extractPostFromNodeList(nodeList) {
   return items
 }
 
-function isUpdated(lastUpdatedAt: number, lastBuildDate: number) {
-  return lastUpdatedAt === lastBuildDate
+function isFeedUpdated(lastUpdatedAt: number, lastBuildDate: number): boolean {
+  return
+}
+
+async function isPostUpdated(url: string): Promise<boolean> {
+  const post = await findPostByUrl(url)
+  return post ? true : false
 }
