@@ -6,40 +6,47 @@ import { getTimestampFromDate } from '@utils/date.utils'
 import { savePostsToDb } from '@lib/posts'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
-  const rssUrls = await getAllRssUrls()
+  const CRON_SECRET = process.env.CRON_SECRET_KEY
+  const auth = req.headers.authorization
 
-  const promises = rssUrls.map(async url => {
-    const doc: Document = await createDocument(url)
-    const { _id: feedId, lastUpdatedAt } = await getFeedByUrl(url)
+  if (auth === CRON_SECRET) {
+    const rssUrls = await getAllRssUrls()
 
-    const lastBuildDate = getTimestampFromDate(
-      doc.querySelector('lastBuildDate').textContent
-    )
+    const promises = rssUrls.map(async url => {
+      const doc: Document = await createDocument(url)
+      const { _id: feedId, lastUpdatedAt } = await getFeedByUrl(url)
 
-    if (!isUpdated(lastUpdatedAt, lastBuildDate)) {
-      const nodeList = doc.querySelectorAll('item')
-      const items = extractPostFromNodeList(nodeList)
-      const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
+      const lastBuildDate = getTimestampFromDate(
+        doc.querySelector('lastBuildDate').textContent
+      )
 
-      const filter = { _id: feedId }
-      const update = { lastUpdatedAt: lastBuildDate }
-      await updateRssFeed(filter, update)
+      if (!isUpdated(lastUpdatedAt, lastBuildDate)) {
+        const nodeList = doc.querySelectorAll('item')
+        const items = extractPostFromNodeList(nodeList)
+        const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
 
-      return await savePostsToDb(posts)
-    }
+        const filter = { _id: feedId }
+        const update = { lastUpdatedAt: lastBuildDate }
+        await updateRssFeed(filter, update)
 
-    return Promise.resolve()
-  })
+        return await savePostsToDb(posts)
+      }
 
-  try {
-    await Promise.all(promises)
-    res.status(200).json({
-      success: true,
-      message: 'Posts saved',
+      return Promise.resolve()
     })
-  } catch (error) {
-    console.error(error)
-    res.status(500).send('Internal server error')
+
+    try {
+      await Promise.all(promises)
+      res.status(200).json({
+        success: true,
+        message: 'Posts saved',
+      })
+    } catch (error) {
+      console.error(error)
+      res.status(500).send('Internal server error')
+    }
+  } else {
+    res.status(401).send('401 Unauthorized')
   }
 }
 
