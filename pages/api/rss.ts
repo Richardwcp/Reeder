@@ -4,6 +4,7 @@ import { removeCdataFromString } from '@utils/sanitise-xml.utils'
 import { getAllRssUrls, getFeedByUrl, updateRssFeed } from '@lib/rss_feed'
 import { getTimestampFromDate } from '@utils/date.utils'
 import { savePostsToDb, findPostByUrl } from '@lib/posts'
+import { Post } from '@lib/types/types'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const CRON_SECRET = process.env.CRON_SECRET_KEY
@@ -23,12 +24,24 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const feedHasUpdated = lastUpdatedAt !== lastBuildDate
 
       if (feedHasUpdated) {
-        const nodeList = doc.querySelectorAll('item')
-        const items = extractPostFromNodeList(nodeList)
-        const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
-
+        const posts = []
         const filter = { _id: feedId }
         const update = { lastUpdatedAt: lastBuildDate }
+        const nodeList = doc.querySelectorAll('item')
+
+        const items = extractPostFromNodeList(nodeList)
+        const filteredPosts = await duplicatePostsToNull(items)
+
+        filteredPosts.forEach(data => {
+          if (data !== null) {
+            const post = {
+              ...data,
+              rss_feed_id: feedId,
+            }
+            posts.push(post)
+          }
+        })
+
         await updateRssFeed(filter, update)
 
         if (posts.length > 0) {
@@ -69,13 +82,6 @@ function extractPostFromNodeList(nodeList) {
 
   nodeList.forEach(async el => {
     const link = el.querySelector('link').textContent
-
-    const isDuplicate = await isDuplicatePost(link)
-
-    if (isDuplicate) {
-      return
-    }
-
     const pubDate = getTimestampFromDate(
       el.querySelector('pubDate').textContent
     )
@@ -100,4 +106,19 @@ function extractPostFromNodeList(nodeList) {
 async function isDuplicatePost(url: string): Promise<boolean> {
   const post = await findPostByUrl(url)
   return post ? true : false
+}
+
+async function duplicatePostsToNull(posts: Array<Post>) {
+  const promises = posts.map(async post => {
+    const { link } = post
+    const isDuplicate = await isDuplicatePost(link)
+
+    if (isDuplicate) {
+      return Promise.resolve(null)
+    }
+
+    return Promise.resolve(post)
+  })
+
+  return await Promise.all(promises)
 }
