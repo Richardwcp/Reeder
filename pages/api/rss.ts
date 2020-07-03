@@ -20,9 +20,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         doc.querySelector('lastBuildDate').textContent
       )
 
-      const isLatestFeed = lastUpdatedAt === lastBuildDate
+      const feedHasUpdated = lastUpdatedAt !== lastBuildDate
 
-      if (!isLatestFeed) {
+      if (feedHasUpdated) {
         const nodeList = doc.querySelectorAll('item')
         const items = extractPostFromNodeList(nodeList)
         const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
