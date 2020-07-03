@@ -3,13 +3,12 @@ import jsdom from 'jsdom'
 import { removeCdataFromString } from '@utils/sanitise-xml.utils'
 import { getAllRssUrls, getFeedByUrl, updateRssFeed } from '@lib/rss_feed'
 import { getTimestampFromDate } from '@utils/date.utils'
-import { savePostsToDb } from '@lib/posts'
+import { savePostsToDb, findPostByUrl } from '@lib/posts'
+import { Post } from '@lib/types/types'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   const CRON_SECRET = process.env.CRON_SECRET_KEY
   const auth = req.headers.authorization
-  console.log('CRON_SECRET', CRON_SECRET)
-  console.log('auth', auth)
 
   if (auth === CRON_SECRET) {
     const rssUrls = await getAllRssUrls()
@@ -22,19 +21,33 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         doc.querySelector('lastBuildDate').textContent
       )
 
-      if (!isUpdated(lastUpdatedAt, lastBuildDate)) {
-        const nodeList = doc.querySelectorAll('item')
-        const items = extractPostFromNodeList(nodeList)
-        const posts = items.map(item => ({ ...item, rss_feed_id: feedId }))
+      const feedHasUpdated = lastUpdatedAt !== lastBuildDate
 
+      if (feedHasUpdated) {
+        const posts = []
         const filter = { _id: feedId }
         const update = { lastUpdatedAt: lastBuildDate }
+        const nodeList = doc.querySelectorAll('item')
+
+        const items = extractPostFromNodeList(nodeList)
+        const filteredPosts = await duplicatePostsToNull(items)
+
+        filteredPosts.forEach(data => {
+          if (data !== null) {
+            const post = {
+              ...data,
+              rss_feed_id: feedId,
+            }
+            posts.push(post)
+          }
+        })
+
         await updateRssFeed(filter, update)
 
-        return await savePostsToDb(posts)
+        if (posts.length > 0) {
+          return await savePostsToDb(posts)
+        }
       }
-
-      return Promise.resolve()
     })
 
     try {
@@ -67,14 +80,14 @@ async function createDocument(url: string): Promise<Document> {
 function extractPostFromNodeList(nodeList) {
   let items = []
 
-  nodeList.forEach(el => {
-    const title = removeCdataFromString(el.querySelector('title').textContent)
-    const description = removeCdataFromString(
-      el.querySelector('description').textContent
-    )
+  nodeList.forEach(async el => {
     const link = el.querySelector('link').textContent
     const pubDate = getTimestampFromDate(
       el.querySelector('pubDate').textContent
+    )
+    const title = removeCdataFromString(el.querySelector('title').textContent)
+    const description = removeCdataFromString(
+      el.querySelector('description').textContent
     )
 
     const item = {
@@ -90,6 +103,22 @@ function extractPostFromNodeList(nodeList) {
   return items
 }
 
-function isUpdated(lastUpdatedAt: number, lastBuildDate: number) {
-  return lastUpdatedAt === lastBuildDate
+async function isDuplicatePost(url: string): Promise<boolean> {
+  const post = await findPostByUrl(url)
+  return post ? true : false
+}
+
+async function duplicatePostsToNull(posts: Array<Post>) {
+  const promises = posts.map(async post => {
+    const { link } = post
+    const isDuplicate = await isDuplicatePost(link)
+
+    if (!isDuplicate) {
+      return Promise.resolve(post)
+    }
+
+    return Promise.resolve(null)
+  })
+
+  return Promise.all(promises)
 }
