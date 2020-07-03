@@ -1,4 +1,4 @@
-import { GetStaticProps } from 'next'
+import { GetServerSideProps } from 'next'
 import { getAllPosts } from '@lib/posts'
 import Feed from '@components/Feed/feed'
 import ExploreTab from '@components/ExploreTab/explore_tab'
@@ -17,7 +17,7 @@ export default function Home({ posts }: HomeProps) {
   )
 }
 
-export const getStaticProps: GetStaticProps = async context => {
+export const getServerSideProps: GetServerSideProps = async context => {
   const posts = await getAllPosts()
 
   return {
