@@ -113,12 +113,12 @@ async function duplicatePostsToNull(posts: Array<Post>) {
     const { link } = post
     const isDuplicate = await isDuplicatePost(link)
 
-    if (isDuplicate) {
-      return Promise.resolve(null)
+    if (!isDuplicate) {
+      return Promise.resolve(post)
     }
 
-    return Promise.resolve(post)
+    return Promise.resolve(null)
   })
 
-  return await Promise.all(promises)
+  return Promise.all(promises)
 }
