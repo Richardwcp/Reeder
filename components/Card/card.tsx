@@ -1,12 +1,12 @@
-import React from 'react'
-import styles from './card.module.scss'
-import { getDateFromTimestamp } from '@utils/date.utils'
-
+import React from "react";
+import styles from "./card.module.scss";
+import { getDateFromTimestamp } from "@utils/date.utils";
+import Likes from "@components/Likes/likes";
 interface Props {
-  title: string
-  description: string
-  link: string
-  pubDate: number
+  title: string;
+  description: string;
+  link: string;
+  pubDate: number;
 }
 
 export default function card({ title, description, link, pubDate }: Props) {
@@ -23,8 +23,9 @@ export default function card({ title, description, link, pubDate }: Props) {
         <div className={styles.cardBottom}>
           <span>{getDateFromTimestamp(pubDate)}</span>
           <span className={styles.author}>Jane Doe</span>
+          <Likes />
         </div>
       </div>
     </article>
-  )
+  );
 }
