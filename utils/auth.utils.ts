@@ -2,7 +2,7 @@ import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import nextCookie from 'next-cookies'
 
-export const auth = context => {
+export const auth = (context): string | undefined => {
   const { token } = nextCookie(context)
   if (context.req && !token) {
     context.res.writeHead(302, { Location: '/login' })
