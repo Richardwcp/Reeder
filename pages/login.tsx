@@ -16,6 +16,8 @@ export default function login({}: LoginProps) {
     password: '',
   })
 
+  const { email, password } = form
+
   const handleChange = (e: SyntheticEvent) => {
     const el = e.target as HTMLInputElement
     const value = el.value
@@ -58,6 +60,7 @@ export default function login({}: LoginProps) {
             placeholder='Email'
             onChange={handleChange}
             alt='Enter your Email'
+            value={email}
           />
         </label>
         <label>
@@ -68,6 +71,7 @@ export default function login({}: LoginProps) {
             placeholder='Password'
             onChange={handleChange}
             alt='Enter your Password'
+            value={password}
           />
         </label>
         <input type='submit' value='Sign In' />
