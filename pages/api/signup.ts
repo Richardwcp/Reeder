@@ -16,6 +16,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const db = await connectToDatabase()
       const { email, username, password } = req.body
+      const secure = process.env.NODE_ENV !== 'development'
 
       const sanitisedUsername = trim(username)
       const sanitisedEmail = normaliseEmail(email)
@@ -62,8 +63,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         'set-cookie',
         serialize('token', token, {
           httpOnly: true,
-          secure: true,
+          secure: secure,
           sameSite: true,
+          maxAge: 60 * 60 * 24 * 7,
         })
       )
       return res.status(200).json({

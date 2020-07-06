@@ -1,15 +1,18 @@
 import React, { useState, SyntheticEvent } from 'react'
 import styles from './login.module.scss'
+import { useRouter } from 'next/router'
 
 interface LoginProps {}
 
 interface Form {
-  userName: string
+  email: string
   password: string
 }
+
 export default function login({}: LoginProps) {
+  const router = useRouter()
   const [form, setForm] = useState<Form>({
-    userName: '',
+    email: '',
     password: '',
   })
 
@@ -23,28 +26,45 @@ export default function login({}: LoginProps) {
     })
   }
 
-  const handleSubmit = async (e: SyntheticEvent) => {}
+  const handleSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch('/api/authenticate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+
+      const { success } = await res.json()
+
+      if (success) {
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      alert(error.message)
+    }
+  }
 
   return (
     <form id='loginForm' onSubmit={handleSubmit}>
       <div>
         <label>
-          Username:
+          Email:
           <input
-            className={styles.usernameInput}
-            type='text'
-            name='username'
-            placeholder='First Name'
+            type='email'
+            name='email'
+            placeholder='Email'
             onChange={handleChange}
-            alt='Enter your Username'
+            alt='Enter your Email'
           />
         </label>
         <label>
           Password:
           <input
-            className={styles.passwordInput}
             type='password'
-            name='username'
+            name='password'
             placeholder='Password'
             onChange={handleChange}
             alt='Enter your Password'

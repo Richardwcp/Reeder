@@ -1,41 +1,43 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
-import cookies from 'next-cookies'
+import nextCookie from 'next-cookies'
 
-const auth = context => {
-  const { token } = cookies(context)
-  try {
-    const decoded = decodeToken(token)
-  } catch (err) {
-    console.error(err)
+export const auth = context => {
+  const { token } = nextCookie(context)
+  if (context.req && !token) {
+    context.res.writeHead(302, { Location: '/login' })
+    context.res.end()
+    return
   }
+
+  return token
 }
-const decodeToken = token => {
+
+export const decodeToken = token => {
   const decodedToken = jwt.decode(token)
   return decodedToken
 }
 
-const verifyToken = token => {
+export const verifyToken = token => {
   const verifiedToken = jwt.verify(token, process.env.JWT_SECRET)
   return verifiedToken
 }
 
-const verifyPassword = (
+export const verifyPassword = (
   attemptedPassword: string,
   hashedPassword: string
 ): boolean => {
   return bcrypt.compare(attemptedPassword, hashedPassword)
 }
 
-const hashPassword = async (password: string) => {
+export const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(12)
   const hash = await bcrypt.hash(password, salt)
 
   return hash
 }
 
-const createToken = userObj => {
-  console.log(userObj)
+export const createToken = userObj => {
   const { _id: id, email } = userObj
   return jwt.sign(
     {
@@ -48,5 +50,3 @@ const createToken = userObj => {
     { algorithm: 'HS256', expiresIn: '1h' }
   )
 }
-
-export { hashPassword, createToken, decodeToken, verifyPassword }

@@ -2,12 +2,14 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@utils/mongodb.utils'
 import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
 import { serialize } from 'cookie'
+import { processEnv } from 'next/dist/lib/load-env-config'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if ('POST' === req.method) {
     try {
       const db = await connectToDatabase()
       const { email, password } = req.body
+      const secure = process.env.NODE_ENV !== 'development'
 
       const user = await db.collection('user').findOne({ email: email })
 
@@ -37,8 +39,9 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         'set-cookie',
         serialize('token', token, {
           httpOnly: true,
-          secure: true,
           sameSite: true,
+          secure: secure,
+          expires: nextWeek(),
         })
       )
       return res.status(200).json({
@@ -54,4 +57,14 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
     }
   }
+}
+
+function nextWeek() {
+  const today = new Date()
+  const nextWeek = new Date(
+    today.getFullYear(),
+    today.getMonth(),
+    today.getDate() + 7
+  )
+  return nextWeek
 }
