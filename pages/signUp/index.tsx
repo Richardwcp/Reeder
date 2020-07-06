@@ -36,7 +36,7 @@ export default function signUp({}: signUpProps) {
             className={styles.usernameInput}
             type='text'
             name='username'
-            placeholder='First Name'
+            placeholder='User Name'
             onChange={handleChange}
             alt='Enter your Username'
           />

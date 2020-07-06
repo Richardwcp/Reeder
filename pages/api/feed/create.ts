@@ -3,7 +3,7 @@ import { connectToDatabase } from '@utils/mongodb.utils'
 
 type Data = {
   success: boolean
-  msg: string
+  message: string
 }
 export default async (
   req: NextApiRequest,
@@ -27,11 +27,11 @@ export default async (
         lastUpdatedAt: null,
       })
 
-      res.status(200).json({ success: true, msg: 'Feed created' })
+      res.status(200).json({ success: true, message: 'Feed created' })
     } catch (error) {
       res.status(500).json({
         success: false,
-        msg: 'Something went wrong, please try again.',
+        message: 'Something went wrong, please try again.',
       })
     }
   } else {
