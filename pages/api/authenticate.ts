@@ -30,6 +30,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const { exp: expiresAt } = decodeToken(token)
 
       const userInfo = {
+        id: user._id,
         username: user.username,
         email: user.email,
       }
@@ -44,6 +45,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           path: '/',
         })
       )
+
       return res.status(200).json({
         success: true,
         message: 'Authentication successful!',
