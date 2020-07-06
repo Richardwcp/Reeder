@@ -26,7 +26,7 @@ export const verifyToken = token => {
 export const verifyPassword = (
   attemptedPassword: string,
   hashedPassword: string
-): boolean => {
+): Promise<boolean> => {
   return bcrypt.compare(attemptedPassword, hashedPassword)
 }
 
