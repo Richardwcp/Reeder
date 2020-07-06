@@ -13,16 +13,6 @@ export const auth = (context): string | undefined => {
   return token
 }
 
-export const decodeToken = token => {
-  const decodedToken = jwt.decode(token)
-  return decodedToken
-}
-
-export const verifyToken = token => {
-  const verifiedToken = jwt.verify(token, process.env.JWT_SECRET)
-  return verifiedToken
-}
-
 export const verifyPassword = (
   attemptedPassword: string,
   hashedPassword: string
@@ -49,4 +39,14 @@ export const createToken = userObj => {
     process.env.JWT_SECRET,
     { algorithm: 'HS256', expiresIn: '1h' }
   )
+}
+
+export const decodeToken = token => {
+  const decodedToken = jwt.decode(token)
+  return decodedToken
+}
+
+export const verifyToken = token => {
+  const verifiedToken = jwt.verify(token, process.env.JWT_SECRET)
+  return verifiedToken
 }
