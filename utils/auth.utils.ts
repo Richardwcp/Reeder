@@ -20,6 +20,13 @@ const verifyToken = token => {
   return verifiedToken
 }
 
+const verifyPassword = (
+  attemptedPassword: string,
+  hashedPassword: string
+): boolean => {
+  return bcrypt.compare(attemptedPassword, hashedPassword)
+}
+
 const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(12)
   const hash = await bcrypt.hash(password, salt)
@@ -42,4 +49,4 @@ const createToken = userObj => {
   )
 }
 
-export { hashPassword, createToken, decodeToken }
+export { hashPassword, createToken, decodeToken, verifyPassword }

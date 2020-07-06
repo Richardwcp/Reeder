@@ -54,8 +54,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const { exp: expiresAt } = decodeToken(token)
 
       const userInfo = {
-        username: sanitisedUsername,
-        email: sanitisedEmail,
+        username: savedUser.username,
+        email: savedUser.email,
       }
 
       res.setHeader(
