@@ -41,6 +41,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           sameSite: true,
           secure: secure,
           expires: nextWeek(),
+          path: '/',
         })
       )
       return res.status(200).json({

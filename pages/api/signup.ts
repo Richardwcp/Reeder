@@ -66,6 +66,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           secure: secure,
           sameSite: true,
           maxAge: 60 * 60 * 24 * 7,
+          path: '/',
         })
       )
 
