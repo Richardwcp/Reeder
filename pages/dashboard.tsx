@@ -1,23 +1,20 @@
-import React, { useEffect } from 'react'
-import { GetStaticProps } from 'next'
+import React from 'react'
+import { GetServerSideProps } from 'next'
 import { auth } from '@utils/auth.utils'
 
-interface Props {}
-
-export default function Dashboard({}: Props) {
-  const getTest = async () => {
-    await fetch('/api')
-  }
-
-  // useEffect(() => {
-  //   getTest()
-  // }, [])
-  return <div>Test</div>
+interface Props {
+  token: string
 }
 
-Dashboard.getInitialProps = async context => {
-  auth(context)
+export default function Dashboard({ token }: Props) {
+  return <div>{token}</div>
+}
+
+export const getServerSideProps: GetServerSideProps = async context => {
+  const token = auth(context)
   return {
-    props: {},
+    props: {
+      token: token,
+    },
   }
 }
