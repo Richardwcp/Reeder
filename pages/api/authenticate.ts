@@ -2,7 +2,6 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@utils/mongodb.utils'
 import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
 import { serialize } from 'cookie'
-import { processEnv } from 'next/dist/lib/load-env-config'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if ('POST' === req.method) {
@@ -19,7 +18,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           .json({ success: false, message: 'Incorrect email or password' })
       }
 
-      const passwordValid = verifyPassword(password, user.password)
+      const passwordValid = await verifyPassword(password, user.password)
 
       if (!passwordValid) {
         return res
