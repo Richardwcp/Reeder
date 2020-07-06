@@ -1,5 +1,5 @@
 import React, { useState, SyntheticEvent } from 'react'
-import styles from './index.module.scss'
+import styles from './login.module.scss'
 
 interface LoginProps {}
 
