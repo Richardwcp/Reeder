@@ -68,6 +68,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           maxAge: 60 * 60 * 24 * 7,
         })
       )
+
       return res.status(200).json({
         success: true,
         message: 'User created!',
