@@ -60,7 +60,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       }
 
       res.setHeader(
-        'set-cookie',
+        'Set-Cookie',
         serialize('token', token, {
           httpOnly: true,
           secure: secure,
