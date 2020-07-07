@@ -46,8 +46,8 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           httpOnly: true,
           sameSite: true,
           secure: secure,
-          expires: nextWeek(),
           path: '/',
+          expires: new Date(Date.now() + 3600 * 1000),
         })
       )
 
@@ -64,14 +64,4 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
     }
   }
-}
-
-function nextWeek() {
-  const today = new Date()
-  const nextWeek = new Date(
-    today.getFullYear(),
-    today.getMonth(),
-    today.getDate() + 7
-  )
-  return nextWeek
 }

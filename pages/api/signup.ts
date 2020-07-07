@@ -66,7 +66,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           httpOnly: true,
           secure: secure,
           sameSite: true,
-          maxAge: 60 * 60 * 24 * 7,
+          expires: new Date(Date.now() + 3600 * 1000),
           path: '/',
         })
       )
