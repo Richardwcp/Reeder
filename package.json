@@ -8,15 +8,22 @@
     "start": "next start"
   },
   "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "cookie": "^0.4.1",
     "jsdom": "^16.2.2",
+    "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.9",
     "next": "9.4.4",
+    "next-cookies": "^2.0.3",
     "react": "16.13.1",
     "react-dom": "16.13.1",
     "sass": "^1.26.8"
   },
   "devDependencies": {
+    "@types/bcryptjs": "^2.4.2",
+    "@types/cookie": "^0.4.0",
     "@types/jsdom": "^16.2.3",
+    "@types/jsonwebtoken": "^8.5.0",
     "@types/mongodb": "^3.5.25",
     "@types/node": "^14.0.13",
     "@types/react": "^16.9.38",

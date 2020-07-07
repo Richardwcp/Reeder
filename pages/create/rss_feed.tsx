@@ -46,8 +46,8 @@ export default function rss_feed({ categories }: Props) {
         body: JSON.stringify(form),
       })
 
-      const { msg } = await res.json()
-      alert(msg)
+      const { message } = await res.json()
+      alert(message)
     } catch (error) {
       alert('Failed to create RSS feed')
     }
