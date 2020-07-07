@@ -1,20 +1,16 @@
 import React from 'react'
 import { GetServerSideProps } from 'next'
-import { auth } from '@utils/auth.utils'
+import { checkAuth } from '@utils/auth.utils'
 
-interface Props {
-  token: string
-}
+interface Props {}
 
-export default function Dashboard({ token }: Props) {
-  return <div>{token}</div>
+export default function Dashboard({}: Props) {
+  return <div>Some text...</div>
 }
 
 export const getServerSideProps: GetServerSideProps = async context => {
-  const token = auth(context)
+  checkAuth(context)
   return {
-    props: {
-      token: token,
-    },
+    props: {},
   }
 }
