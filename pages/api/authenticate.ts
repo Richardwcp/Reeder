@@ -1,8 +1,8 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@utils/mongodb.utils'
 import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
-import { serialize } from 'cookie'
 import { normaliseEmail } from '@utils/sanitise.utils'
+import { setTokenCookie } from '@utils/cookie.utils'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if ('POST' === req.method) {
@@ -31,25 +31,16 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
           .json({ success: false, message: 'Incorrect email or password' })
       }
 
-      const token = createToken(user)
-      const { exp: expiresAt } = decodeToken(token)
-
       const userInfo = {
         id: user._id,
         username: user.username,
         email: user.email,
       }
 
-      res.setHeader(
-        'Set-Cookie',
-        serialize('token', token, {
-          httpOnly: true,
-          sameSite: true,
-          secure: secure,
-          path: '/',
-          expires: new Date(Date.now() + 3600 * 1000),
-        })
-      )
+      const token = createToken(userInfo)
+      const { exp: expiresAt } = decodeToken(token)
+
+      setTokenCookie(res, token)
 
       return res.status(200).json({
         success: true,

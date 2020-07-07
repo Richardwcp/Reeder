@@ -2,21 +2,13 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@utils/mongodb.utils'
 import { hashPassword, createToken, decodeToken } from '@utils/auth.utils'
 import { normaliseEmail, normalisePassword, trim } from '@utils/sanitise.utils'
-import { serialize } from 'cookie'
-
-type Data = {
-  success: boolean
-  message: string
-  userInfo: object
-  expiresAt: number
-}
+import { setTokenCookie } from '@utils/cookie.utils'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if ('POST' === req.method) {
     try {
       const db = await connectToDatabase()
       const { email, username, password } = req.body
-      const secure = process.env.NODE_ENV !== 'development'
 
       const sanitisedUsername = trim(username)
       const sanitisedEmail = normaliseEmail(email)
@@ -51,25 +43,15 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         ops: [savedUser],
       } = await db.collection('user').insertOne(user)
 
-      const token = createToken(savedUser)
-      const { exp: expiresAt } = decodeToken(token)
-
       const userInfo = {
         id: savedUser._id,
         username: savedUser.username,
         email: savedUser.email,
       }
+      const token = createToken(userInfo)
+      const { exp: expiresAt } = decodeToken(token)
 
-      res.setHeader(
-        'Set-Cookie',
-        serialize('token', token, {
-          httpOnly: true,
-          secure: secure,
-          sameSite: true,
-          expires: new Date(Date.now() + 3600 * 1000),
-          path: '/',
-        })
-      )
+      setTokenCookie(res, token)
 
       return res.status(200).json({
         success: true,
