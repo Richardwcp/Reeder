@@ -13,18 +13,18 @@ export const auth = (context): string | undefined => {
   return token
 }
 
-export const verifyPassword = (
-  attemptedPassword: string,
-  hashedPassword: string
-): Promise<boolean> => {
-  return bcrypt.compare(attemptedPassword, hashedPassword)
-}
-
 export const hashPassword = async (password: string) => {
   const salt = bcrypt.genSaltSync(12)
   const hash = await bcrypt.hash(password, salt)
 
   return hash
+}
+
+export const verifyPassword = (
+  attemptedPassword: string,
+  hashedPassword: string
+): Promise<boolean> => {
+  return bcrypt.compare(attemptedPassword, hashedPassword)
 }
 
 export const createToken = userObj => {
@@ -41,7 +41,7 @@ export const createToken = userObj => {
   )
 }
 
-export const decodeToken = token => {
+export const decodeToken = (token): any => {
   const decodedToken = jwt.decode(token)
   return decodedToken
 }
