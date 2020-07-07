@@ -9,8 +9,6 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
     try {
       const db = await connectToDatabase()
       const { email, password } = req.body
-      const secure = process.env.NODE_ENV !== 'development'
-
       const sanitisedEmail = normaliseEmail(email)
 
       const user = await db

@@ -48,6 +48,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         username: savedUser.username,
         email: savedUser.email,
       }
+
       const token = createToken(userInfo)
       const { exp: expiresAt } = decodeToken(token)
 
