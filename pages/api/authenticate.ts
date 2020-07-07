@@ -2,6 +2,7 @@ import { NextApiRequest, NextApiResponse } from 'next'
 import { connectToDatabase } from '@utils/mongodb.utils'
 import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
 import { serialize } from 'cookie'
+import { normaliseEmail } from '@utils/sanitise.utils'
 
 export default async (req: NextApiRequest, res: NextApiResponse) => {
   if ('POST' === req.method) {
@@ -10,7 +11,11 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       const { email, password } = req.body
       const secure = process.env.NODE_ENV !== 'development'
 
-      const user = await db.collection('user').findOne({ email: email })
+      const sanitisedEmail = normaliseEmail(email)
+
+      const user = await db
+        .collection('user')
+        .findOne({ email: sanitisedEmail })
 
       if (!user) {
         return res
