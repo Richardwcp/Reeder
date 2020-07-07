@@ -1,19 +1,23 @@
 import React, { useState, SyntheticEvent } from 'react'
 import styles from './signup.module.scss'
+import { useRouter } from 'next/router'
 
 interface signUpProps {}
 
 interface Form {
-  userName: string
+  username: string
   password: string
   email: string
 }
 export default function signUp({}: signUpProps) {
+  const router = useRouter()
   const [form, setForm] = useState<Form>({
-    userName: '',
+    username: '',
     password: '',
     email: '',
   })
+
+  const { email, password, username } = form
 
   const handleChange = (e: SyntheticEvent) => {
     const el = e.target as HTMLInputElement
@@ -25,11 +29,42 @@ export default function signUp({}: signUpProps) {
     })
   }
 
-  const handleSubmit = async (e: SyntheticEvent) => {}
+  const handleSubmit = async (e: SyntheticEvent) => {
+    e.preventDefault()
+    try {
+      const res = await fetch('/api/signup', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(form),
+      })
+
+      const { success } = await res.json()
+
+      if (success) {
+        router.push('/dashboard')
+      }
+    } catch (error) {
+      alert(error.message)
+    }
+  }
 
   return (
     <form id='signUpForm' onSubmit={handleSubmit}>
       <div>
+        <label>
+          Email:
+          <input
+            className={styles.emailInput}
+            type='email'
+            name='email'
+            placeholder='Email'
+            onChange={handleChange}
+            alt='Enter your Email'
+            value={email}
+          />
+        </label>
         <label>
           Username:
           <input
@@ -39,6 +74,7 @@ export default function signUp({}: signUpProps) {
             placeholder='User Name'
             onChange={handleChange}
             alt='Enter your Username'
+            value={username}
           />
         </label>
         <label>
@@ -50,19 +86,10 @@ export default function signUp({}: signUpProps) {
             placeholder='Password'
             onChange={handleChange}
             alt='Enter your Password'
+            value={password}
           />
         </label>
-        <label>
-          Email:
-          <input
-            className={styles.emailInput}
-            type='email'
-            name='email'
-            placeholder='Email'
-            onChange={handleChange}
-            alt='Enter your Email'
-          />
-        </label>
+
         <input type='submit' value='Sign Up' />
       </div>
     </form>
