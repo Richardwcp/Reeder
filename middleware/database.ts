@@ -10,6 +10,7 @@ let cachedDb: any = null
 
 async function database(req, res, next) {
   if (cachedDb) {
+    console.log('Using existing connection')
     req.db = cachedDb
     return next()
   }
@@ -19,6 +20,7 @@ async function database(req, res, next) {
   }
 
   cachedDb = client.db()
+  console.log('New DB Connection')
   req.db = cachedDb
   return next()
 }
