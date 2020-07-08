@@ -1,17 +1,21 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { connectToDatabase } from '@utils/mongodb.utils'
+import nextConnect from 'next-connect'
 import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
 import { normaliseEmail } from '@utils/sanitise.utils'
 import { setTokenCookie } from '@utils/cookie.utils'
+import database from '@middleware/database'
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if ('POST' === req.method) {
+const handler = nextConnect()
+
+handler.use(database)
+
+export default handler.post(
+  async (req: NextApiRequest, res: NextApiResponse) => {
     try {
-      const db = await connectToDatabase()
       const { email, password } = req.body
       const sanitisedEmail = normaliseEmail(email)
 
-      const user = await db
+      const user = await req.db
         .collection('user')
         .findOne({ email: sanitisedEmail })
 
@@ -53,4 +57,4 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
     }
   }
-}
+)
