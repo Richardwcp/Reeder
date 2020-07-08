@@ -1,6 +1,5 @@
 import { NextApiRequest, NextApiResponse } from 'next'
 import nextConnect from 'next-connect'
-import { connectToDatabase } from '@utils/mongodb.utils'
 import database from '@middleware/database'
 import { Db } from 'mongodb'
 
@@ -17,7 +16,6 @@ export default handler.get(
       const [categoryId] = await req.db.collection('category').distinct('_id', {
         name: 'Home',
       })
-      console.log('categoryId', categoryId)
 
       const feeds = await req.db.collection('rss_feed').distinct('_id', {
         category_id: categoryId,
@@ -33,9 +31,9 @@ export default handler.get(
         .sort({ pubDate: -1 })
         .toArray()
 
-      res.status(200).json(posts)
+      return res.status(200).json(posts)
     } catch (e) {
-      res.status(500).json({ error: e.message })
+      return res.status(500).json({ error: e.message })
     }
   }
 )
