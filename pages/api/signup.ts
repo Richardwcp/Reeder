@@ -1,13 +1,22 @@
 import { NextApiRequest, NextApiResponse } from 'next'
-import { connectToDatabase } from '@utils/mongodb.utils'
+import nextConnect from 'next-connect'
 import { hashPassword, createToken, decodeToken } from '@utils/auth.utils'
 import { normaliseEmail, normalisePassword, trim } from '@utils/sanitise.utils'
 import { setTokenCookie } from '@utils/cookie.utils'
+import database from '@middleware/database'
+import { Db } from 'mongodb'
 
-export default async (req: NextApiRequest, res: NextApiResponse) => {
-  if ('POST' === req.method) {
+const handler = nextConnect()
+
+handler.use(database)
+
+interface CustomApiRequest extends NextApiRequest {
+  db: Db
+}
+
+export default handler.post(
+  async (req: CustomApiRequest, res: NextApiResponse) => {
     try {
-      const db = await connectToDatabase()
       const { email, username, password } = req.body
 
       const sanitisedUsername = trim(username)
@@ -22,7 +31,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
         })
       }
 
-      let user = await db.collection('user').findOne({
+      let user = await req.db.collection('user').findOne({
         email: sanitisedEmail,
       })
 
@@ -41,7 +50,7 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
 
       const {
         ops: [savedUser],
-      } = await db.collection('user').insertOne(user)
+      } = await req.db.collection('user').insertOne(user)
 
       const userInfo = {
         id: savedUser._id,
@@ -68,4 +77,4 @@ export default async (req: NextApiRequest, res: NextApiResponse) => {
       })
     }
   }
-}
+)
