@@ -4,7 +4,6 @@ import database from '@middleware/database'
 import { Db } from 'mongodb'
 
 const handler = nextConnect()
-
 handler.use(database)
 
 interface CustomApiRequest extends NextApiRequest {
