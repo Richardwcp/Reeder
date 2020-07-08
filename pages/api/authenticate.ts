@@ -4,13 +4,18 @@ import { createToken, decodeToken, verifyPassword } from '@utils/auth.utils'
 import { normaliseEmail } from '@utils/sanitise.utils'
 import { setTokenCookie } from '@utils/cookie.utils'
 import database from '@middleware/database'
+import { Db } from 'mongodb'
 
 const handler = nextConnect()
 
 handler.use(database)
 
+interface CustomApiRequest extends NextApiRequest {
+  db: Db
+}
+
 export default handler.post(
-  async (req: NextApiRequest, res: NextApiResponse) => {
+  async (req: CustomApiRequest, res: NextApiResponse) => {
     try {
       const { email, password } = req.body
       const sanitisedEmail = normaliseEmail(email)
