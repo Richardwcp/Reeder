@@ -17,6 +17,7 @@
     "paths": {
       "@components/*": ["./components/*"],
       "@lib/*": ["./lib/*"],
+      "@middleware/*": ["./pages/api/middleware/*"],
       "@utils/*": ["./utils/*"]
     }
   },

@@ -1,4 +1,4 @@
-import { serialize } from 'cookie'
+import { serialize, parse } from 'cookie'
 
 export const setTokenCookie = (res, token) => {
   const oneHour = new Date(Date.now() + 3600 * 1000)
@@ -12,4 +12,10 @@ export const setTokenCookie = (res, token) => {
   })
 
   res.setHeader('Set-Cookie', cookie)
+}
+
+export const getTokenFromCookie = req => {
+  const cookie = req.headers?.cookie
+  const { token } = parse(cookie || '')
+  return token
 }

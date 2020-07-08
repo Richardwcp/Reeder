@@ -1,13 +1,16 @@
 import jwt from 'jsonwebtoken'
 import bcrypt from 'bcryptjs'
 import nextCookie from 'next-cookies'
+import Router from 'next/router'
 
-export const auth = (context): string | undefined => {
+export const checkAuth = (context): string | undefined => {
   const { token } = nextCookie(context)
+
   if (context.req && !token) {
     context.res.writeHead(302, { Location: '/login' })
     context.res.end()
-    return
+  } else if (!token) {
+    Router.replace('/login')
   }
 
   return token
