@@ -10,7 +10,7 @@
   "dependencies": {
     "bcryptjs": "^2.4.3",
     "cookie": "^0.4.1",
-    "jsdom": "^16.2.2",
+    "jsdom": "^16.5.0",
     "jsonwebtoken": "^8.5.1",
     "mongodb": "^3.5.9",
     "next": "9.4.4",
